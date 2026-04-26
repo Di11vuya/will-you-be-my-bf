@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Boyfriend?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe0f0 50%, #ffd6e8 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating hearts background */
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            animation: float 6s ease-in infinite;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .gif-container {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            color: #d63384;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #e85d9a;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            position: relative;
+            min-height: 80px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .yes-btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+        }
+
+        .yes-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.6);
+        }
+
+        .no-btn {
+            background: linear-gradient(135deg, #b8b8b8 0%, #7a7a7a 100%);
+            color: white;
+            position: absolute;
+            transition: all 0.2s ease;
+        }
+
+        .result {
+            display: none;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .result h2 {
+            color: #d63384;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .result p {
+            color: #e85d9a;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .hearts-explosion {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .explosion-heart {
+            position: absolute;
+            font-size: 30px;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) scale(1);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating hearts -->
+    <div id="floating-hearts"></div>
+
+    <div class="container" id="main-container">
+        <div class="gif-container">💖</div>
+        <h1>Will You Be My Boyfriend?</h1>
+        <p class="subtitle">You know you want to say yes! 😊</p>
+        
+        <div class="buttons" id="button-area">
+            <button class="yes-btn" id="yesBtn" onclick="sayYes()">Yes! 💕</button>
+            <button class="no-btn" id="noBtn" onmouseover="runAway()" onclick="runAway()">No</button>
+        </div>
+    </div>
+
+    <div class="result" id="result">
+        <div class="gif-container">🎉💑🎉</div>
+        <h2>Yay! I Knew You'd Say Yes!</h2>
+        <p>You just made me the happiest person alive! 💖</p>
+        <p style="font-size: 2em; margin-top: 20px;">I love you! 💘</p>
+    </div>
+
+    <div class="hearts-explosion" id="hearts-explosion"></div>
+
+    <script>
+        // Create floating hearts background
+        function createFloatingHearts() {
+            const container = document.getElementById('floating-hearts');
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '💘'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                container.appendChild(heart);
+                
+                setTimeout(() => heart.remove(), 7000);
+            }, 800);
+        }
+
+        // No button runs away from cursor
+        function runAway() {
+            const noBtn = document.getElementById('noBtn');
+            const buttonArea = document.getElementById('button-area');
+            const rect = buttonArea.getBoundingClientRect();
+            
+            // Calculate random position within the viewport but away from the yes button
+            const maxX = window.innerWidth - 150;
+            const maxY = window.innerHeight - 80;
+            
+            let newX = Math.random() * maxX;
+            let newY = Math.random() * maxY;
+            
+            // Keep it somewhat near the container but unpredictable
+            const containerRect = document.getElementById('main-container').getBoundingClientRect();
+            
+            // Random position around the container
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 100 + Math.random() * 200;
+            
+            newX = containerRect.left + containerRect.width / 2 + Math.cos(angle) * distance - 50;
+            newY = containerRect.top + containerRect.height / 2 + Math.sin(angle) * distance - 25;
+            
+            // Keep within viewport
+            newX = Math.max(10, Math.min(window.innerWidth - 120, newX));
+            newY = Math.max(10, Math.min(window.innerHeight - 60, newY));
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+            noBtn.style.transform = `rotate(${Math.random() * 360}deg)`;
+        }
+
+        // Yes button clicked - celebration!
+        function sayYes() {
+            // Hide main container
+            document.getElementById('main-container').style.display = 'none';
+            
+            // Show result
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            
+            // Create explosion of hearts
+            createHeartExplosion();
+            
+            // Keep creating explosions
+            setInterval(createHeartExplosion, 1500);
+        }
+
+        function createHeartExplosion() {
+            const container = document.getElementById('hearts-explosion');
+            const hearts = ['💕', '💖', '💗', '💓', '💝', '💘', '💞', '💟'];
+            
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'explosion-heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                
+                const angle = (Math.PI * 2 * i) / 30;
+                const distance = 100 + Math.random() * 300;
+                const x = Math.cos(angle) * distance;
+                const y = Math.sin(angle) * distance;
+                
+                heart.style.setProperty('--x', x + 'px');
+                heart.style.setProperty('--y', y + 'px');
+                heart.style.animationDelay = (Math.random() * 0.3) + 's';
+                
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), 1500);
+            }
+        }
+
+        // Initialize
+        createFloatingHearts();
+        
+        // Make no button also try to escape on touch devices
+        document.getElementById('noBtn').addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            runAway();
+        });
+    </script>
+</body>
+</html>
+
